@@ -1,0 +1,43 @@
+import React, { useContext } from "react";
+import { TodoContext } from "../contexts/TodoContext";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
+import { TodoContextType } from "../contexts/TodoContextType";
+import { title } from "process";
+
+const schema = yup.object().shape({
+    title: yup.string().required('Tarefa inválida')
+});
+
+interface AddTodoForm {
+    title: string
+}
+
+const AddTodo = () => {
+    const { addTodo } = useContext<TodoContextType>(TodoContext);
+    const { register, handleSubmit, watch, formState: { errors } } = useForm({
+        resolver: yupResolver(schema)
+    })
+
+    const onSubmit: SubmitHandler<AddTodoForm> = (data: AddTodoForm, e: any) => {
+        addTodo(data.title);
+        e.target.reset();
+        window.location.href = '/';
+    }
+
+    return (
+        <form onSubmit={handleSubmit(onSubmit)}>
+            <h4>Nova Tarefa</h4>
+            <div className="uk-margin uk-width-1-1">
+                <input type="text" id="title" {...register('title', { required: true })} placeholder="Nova tarefa..." className="uk-input" />
+                <span><small><strong className="uk-text-danger">{errors.title?.message}</strong></small></span>
+            </div>
+            <div className="uk-width-1-1">
+                <button type="submit" className="uk-button uk-button-primary">Salvar</button>
+            </div>
+        </form>
+    );
+}
+
+export default AddTodo;
